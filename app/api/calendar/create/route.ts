@@ -2,28 +2,37 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAccessToken, createCalendarEvent } from "../../utils/google";
 
 export async function POST(request: NextRequest) {
-  const refreshToken = request.cookies.get("refresh_token")?.value;
+    const refreshToken = request.cookies.get("refresh_token")?.value;
 
   if (!refreshToken) {
-    return NextResponse.json(
-      { error: "Not authenticated" },
-      { status: 401 }
-    );
+        return NextResponse.json(
+          { error: "Not authenticated" },
+          { status: 401 }
+              );
   }
 
   try {
-    const body = await request.json();
-    const { title, date, time, location } = body;
+        const body = await request.json();
+        const { title, date, startTime, endTime, timezone = "America/Chicago", location } = body;
 
-    const accessToken = await getAccessToken(refreshToken);
-    await createCalendarEvent(accessToken, title, date, time, location);
+      if (!title) {
+              return NextResponse.json(
+                { error: "Title is required" },
+                { status: 400 }
+                      );
+      }
 
-    return NextResponse.json({ success: true });
+      const accessToken = await getAccessToken(refreshToken);
+        await createCalendarEvent(accessToken, title, date, startTime, endTime, timezone, location);
+
+      return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Calendar error:", err);
-    return NextResponse.json(
-      { error: "Failed to create calendar event" },
-      { status: 500 }
-    );
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error("Calendar error:", errorMessage);
+
+      return NextResponse.json(
+        { error: errorMessage || "Failed to create calendar event" },
+        { status: 500 }
+            );
   }
 }
