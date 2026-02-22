@@ -43,18 +43,33 @@ export default function Home() {
   });
 
   useEffect(() => {
-    checkAuth();
+    checkAuthStatus();
   }, []);
 
-  const checkAuth = async () => {
-    try {
-      const response = await fetch("/api/auth/status");
-      if (response.ok) {
-        setIsAuthenticated(true);
-      }
-    } catch (err) {
-      console.log("Not authenticated");
-    }
+  const checkAuthStatus = async () => {
+        // Check if returning from OAuth callback
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get("auth") === "success") {
+                // Call status endpoint with no-store cache
+                const response = await fetch("/api/auth/status", { 
+                          cache: "no-store" as RequestCache 
+                });
+                if (response.ok) {
+                          setIsAuthenticated(true);
+                          // Clean up URL by removing auth param
+                          window.history.replaceState({}, document.title, window.location.pathname);
+                }
+        } else {
+                // Normal auth check
+                try {
+                          const response = await fetch("/api/auth/status");
+                          if (response.ok) {
+                                      setIsAuthenticated(true);
+                          }
+                } catch (err) {
+                          console.log("Not authenticated");
+                }
+        }
   };
 
   const connectGoogle = async () => {
@@ -282,16 +297,15 @@ export default function Home() {
 
       {!screenshot ? (
         <div className="upload-section">
-          <div
+          <label htmlFor="file-input"
             className="upload-area"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            onClick={() => fileInputRef.current?.click()}
           >
             <div className="upload-icon">📸</div>
             <div className="upload-text">Drop screenshot here or click</div>
             <span className="file-input-label">Choose Image</span>
-          </div>
+          </label>
           <input
             ref={fileInputRef}
             type="file"
