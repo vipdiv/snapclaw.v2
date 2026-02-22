@@ -290,9 +290,7 @@ export default function Home() {
           >
             <div className="upload-icon">📸</div>
             <div className="upload-text">Drop screenshot here or click</div>
-            <label htmlFor="file-input" className="file-input-label">
-              Choose Image
-            </label>
+            <span className="file-input-label">Choose Image</span>
           </div>
           <input
             ref={fileInputRef}
@@ -300,8 +298,10 @@ export default function Home() {
             id="file-input"
             accept="image/*"
             onChange={(e) => {
-              if (e.target.files?.length) {
-                handleFileSelect(e.target.files[0]);
+              const selectedFile = e.target.files?.[0];
+              e.currentTarget.value = "";
+              if (selectedFile) {
+                handleFileSelect(selectedFile);
               }
             }}
           />
