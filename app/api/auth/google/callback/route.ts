@@ -48,8 +48,7 @@ export async function GET(request: NextRequest) {
     }
 
     const baseUrl = process.env.APP_BASE_URL || request.nextUrl.origin;
-    const response = NextResponse.redirect(new URL("/", baseUrl));
-    response.cookies.set("refresh_token", tokens.refresh_token, {
+const response = NextResponse.redirect(new URL("/?auth=success", baseUrl));    response.cookies.set("refresh_token", tokens.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
