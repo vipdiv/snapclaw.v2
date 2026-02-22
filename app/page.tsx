@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Tesseract } from "tesseract.js";
+import Tesseract from "tesseract.js";
 
 const CATEGORIES = [
   "EVENT_LOGISTICS",
